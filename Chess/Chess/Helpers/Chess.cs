@@ -16,6 +16,7 @@ namespace Chess.Helpers
         public int row { get; set; }
         public int column { get; set; }
         public bool isStart { get; set; }
+        public String id { get; set; }
     }
 
     public class Piece
