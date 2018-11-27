@@ -9,18 +9,76 @@ namespace Chess.Helpers
     {
     }
 
-    public class Name
-    {
-        public String rook { get { return "rook";  } }
-        public String knight { get { return "knight"; } }
-        public String bishop { get { return "bishop"; } }
-        public String queen { get { return "queen"; } }
-        public String king { get { return "king"; } }
-        public String pawn { get { return "pawn"; } }
-    }
     public class Properties
     {
-        Name name = new Name();
-        Color color = new Color(); 
+        public String name { get; set; }
+        public String color { get; set; }
+        public int row { get; set; }
+        public int column { get; set; }
+        public bool isStart { get; set; }
+    }
+
+    public class Piece
+    {
+        Properties prop = new Properties(); 
+        public Properties rook {
+            get
+            {
+                prop.name = "rook";
+                return prop; 
+            }
+        }
+
+        public Properties knight
+        {
+            get
+            {
+                prop.name = "knight";
+                return prop; 
+            }
+        }
+
+        public Properties bishop
+        {
+            get
+            {
+                prop.name = "bishop";
+                return prop; 
+            }
+        }
+        public Properties queen
+        {
+            get
+            {
+                prop.name = "queen";
+                return prop;
+            }
+        }
+
+        public Properties king
+        {
+            get
+            {
+                prop.name = "king";
+                return prop;
+            }
+        }
+
+        public Properties pawn
+        {
+            get
+            {
+                prop.name = "pawn";
+                return prop;
+            }
+        }
+    }
+
+    public class Move
+    {
+        public int row { get; set; }
+        public int column { get; set; }
+        public String id { get; set; }
+        public String target { get; set; }
     }
 }
