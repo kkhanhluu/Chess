@@ -187,11 +187,11 @@ namespace Chess.Controllers
                     if (((targetColumn - currentColumn) == 2 && (targetRow - currentRow) == 1)
                         || ((targetColumn - currentColumn) == 1 && (targetRow - currentRow) == 2)
                         || ((-targetColumn + currentColumn) == 1 && (targetRow - currentRow) == 2)
-                        || ((-targetColumn + currentColumn) == 2 && (targetRow - currentRow) == 2)
+                        || ((-targetColumn + currentColumn) == 2 && (targetRow - currentRow) == 1)
                         || ((targetColumn - currentColumn) == 1 && (-targetRow + currentRow) == 2)
                         || ((targetColumn - currentColumn) == 2 && (-targetRow + currentRow) == 1)
                         || ((-targetColumn + currentColumn) == 1 && (-targetRow + currentRow) == 2)
-                        || ((-targetColumn + currentColumn) == 2 && (-targetRow + currentRow) == 2))
+                        || ((-targetColumn + currentColumn) == 2 && (-targetRow + currentRow) == 1))
                     {
                         if (board[targetRow, targetColumn] != 0 && board[targetRow, targetColumn] != board[currentRow, currentColumn])
                         {
@@ -204,78 +204,178 @@ namespace Chess.Controllers
                     }
                     break;
                 case "rook":
-                    if (targetColumn != currentColumn && targetRow == currentRow)
+                    String[] rookResult = LogicForRook(targetColumn, targetRow, currentColumn, currentRow, piece, pieceId).Split(' '); 
+                    if (rookResult[0] == "false")
                     {
-                        int stepSize = Math.Abs(targetColumn - currentColumn);
-                        if (targetColumn > currentColumn)
-                        {
-                            for (int i = 1; i < stepSize; i++)
-                            {
-                                if (board[currentRow, currentColumn + i] != 0)
-                                {
-                                    return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
-                                }
-
-                            } 
-                        }
-                        else
-                        {
-                            for (int i = 1; i < stepSize; i++)
-                            {
-                                if (board[currentRow, currentColumn - i] != 0)
-                                {
-                                    return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
-                                }
-
-                            }
-                        }
-                        if (board[targetRow, targetColumn] != 0 && board[targetRow, targetColumn] != board[currentRow, currentColumn])
-                        {
-                            Properties deletedPiece = FindDeletedPiece(targetRow, targetColumn, pieceId);
-                            UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
-                            return Json(new { isMoveable = true, canDelete = deletedPiece.id }, JsonRequestBehavior.AllowGet);
-                        }
-                        UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
-                        return Json(new { isMoveable = true }, JsonRequestBehavior.AllowGet);
+                        return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
                     }
-                    else if (targetColumn == currentColumn && targetRow != currentRow)
+                    else
                     {
-                        int stepSize = Math.Abs(targetRow - currentRow);
-                        if (targetRow > currentRow)
+                        if (rookResult.Length > 1)
                         {
-                            for (int i = 1; i < stepSize; i++)
-                            {
-                                if (board[currentRow + i, currentColumn] != 0)
-                                {
-                                    return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
-                                }
-
-                            }
+                            return Json(new { isMoveable = true, canDelete = rookResult[1] }, JsonRequestBehavior.AllowGet);
                         }
                         else
                         {
-                            for (int i = 1; i < stepSize; i++)
-                            {
-                                if (board[currentRow - i, currentColumn] != 0)
-                                {
-                                    return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
-                                }
+                            return Json(new { isMoveable = true }, JsonRequestBehavior.AllowGet);
 
-                            }
                         }
-                        if (board[targetRow, targetColumn] != 0 && board[targetRow, targetColumn] != board[currentRow, currentColumn])
-                        {
-                            Properties deletedPiece = FindDeletedPiece(targetRow, targetColumn, pieceId);
-                            UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
-                            return Json(new { isMoveable = true, canDelete = deletedPiece.id }, JsonRequestBehavior.AllowGet);
-                        }
-                        UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
-                        return Json(new { isMoveable = true }, JsonRequestBehavior.AllowGet);
                     }
                     break;
+                case "bishop":
+                    String[] bisHopResult = LogicForBishop(targetColumn, targetRow, currentColumn, currentRow, piece, pieceId).Split(' ');
+                    if (bisHopResult[0] == "false")
+                    {
+                        return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        if (bisHopResult.Length > 1)
+                        {
+                            return Json(new { isMoveable = true, canDelete = bisHopResult[1] }, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            return Json(new { isMoveable = true }, JsonRequestBehavior.AllowGet);
+
+                        }
+                    }
+                    break; 
             }
 
             return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
+        }
+        private static String LogicForBishop(int targetColumn, int targetRow, int currentColumn, int currentRow, Properties piece, String pieceId)
+        {
+            if (Math.Abs(targetColumn - currentColumn) == Math.Abs(targetRow - currentRow))
+            {
+                int stepSize = Math.Abs(targetColumn - currentColumn);
+                if (targetColumn > currentColumn && targetRow < currentRow)
+                {
+                    for (int i = 1; i < stepSize; i++)
+                    {
+                        if (board[currentRow - i, currentColumn + i] != 0)
+                        {
+                            return "false";
+                        }
+
+                    }
+                }
+                else if (targetColumn < currentColumn && targetRow < currentRow)
+                {
+                    for (int i = 1; i < stepSize; i++)
+                    {
+                        if (board[currentRow - i, currentColumn - i] != 0)
+                        {
+                            return "false";
+                        }
+
+                    }
+                }
+                else if (targetColumn < currentColumn && targetRow > currentRow)
+                {
+                    for (int i = 1; i < stepSize; i++)
+                    {
+                        if (board[currentRow + i, currentColumn - i] != 0)
+                        {
+                            return "false";
+                        }
+
+                    }
+                }
+                else if (targetColumn > currentColumn && targetRow > currentRow)
+                {
+                    for (int i = 1; i < stepSize; i++)
+                    {
+                        if (board[currentRow + i, currentColumn + i] != 0)
+                        {
+                            return "false";
+                        }
+
+                    }
+                }
+                if (board[targetRow, targetColumn] != 0 && board[targetRow, targetColumn] != board[currentRow, currentColumn])
+                {
+                    Properties deletedPiece = FindDeletedPiece(targetRow, targetColumn, pieceId);
+                    UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                    return "true " + deletedPiece.id;
+                }
+                UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                return "true";
+            }
+            return "false";
+        }
+        private static String LogicForRook(int targetColumn, int targetRow, int currentColumn, int currentRow, Properties piece, String pieceId)
+        {
+            if (targetColumn != currentColumn && targetRow == currentRow)
+            {
+                int stepSize = Math.Abs(targetColumn - currentColumn);
+                if (targetColumn > currentColumn)
+                {
+                    for (int i = 1; i < stepSize; i++)
+                    {
+                        if (board[currentRow, currentColumn + i] != 0)
+                        {
+                            return "false";
+                        }
+
+                    }
+                }
+                else
+                {
+                    for (int i = 1; i < stepSize; i++)
+                    {
+                        if (board[currentRow, currentColumn - i] != 0)
+                        {
+                            return "false";
+                        }
+
+                    }
+                }
+                if (board[targetRow, targetColumn] != 0 && board[targetRow, targetColumn] != board[currentRow, currentColumn])
+                {
+                    Properties deletedPiece = FindDeletedPiece(targetRow, targetColumn, pieceId);
+                    UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                    return "true " + deletedPiece.id;
+                }
+                UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                return "true";
+            }
+            else if (targetColumn == currentColumn && targetRow != currentRow)
+            {
+                int stepSize = Math.Abs(targetRow - currentRow);
+                if (targetRow > currentRow)
+                {
+                    for (int i = 1; i < stepSize; i++)
+                    {
+                        if (board[currentRow + i, currentColumn] != 0)
+                        {
+                            return "false";
+                        }
+
+                    }
+                }
+                else
+                {
+                    for (int i = 1; i < stepSize; i++)
+                    {
+                        if (board[currentRow - i, currentColumn] != 0)
+                        {
+                            return "false";
+                        }
+
+                    }
+                }
+                if (board[targetRow, targetColumn] != 0 && board[targetRow, targetColumn] != board[currentRow, currentColumn])
+                {
+                    Properties deletedPiece = FindDeletedPiece(targetRow, targetColumn, pieceId);
+                    UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                    return "true " + deletedPiece.id;
+                }
+                UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                return "true";
+            }
+            return "false";
         }
 
         private static Properties FindDeletedPiece(int targetRow, int targetColumn, string pieceId)
