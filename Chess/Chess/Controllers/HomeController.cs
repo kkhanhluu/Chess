@@ -203,6 +203,76 @@ namespace Chess.Controllers
                         return Json(new { isMoveable = true }, JsonRequestBehavior.AllowGet);
                     }
                     break;
+                case "rook":
+                    if (targetColumn != currentColumn && targetRow == currentRow)
+                    {
+                        int stepSize = Math.Abs(targetColumn - currentColumn);
+                        if (targetColumn > currentColumn)
+                        {
+                            for (int i = 1; i < stepSize; i++)
+                            {
+                                if (board[currentRow, currentColumn + i] != 0)
+                                {
+                                    return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
+                                }
+
+                            } 
+                        }
+                        else
+                        {
+                            for (int i = 1; i < stepSize; i++)
+                            {
+                                if (board[currentRow, currentColumn - i] != 0)
+                                {
+                                    return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
+                                }
+
+                            }
+                        }
+                        if (board[targetRow, targetColumn] != 0 && board[targetRow, targetColumn] != board[currentRow, currentColumn])
+                        {
+                            Properties deletedPiece = FindDeletedPiece(targetRow, targetColumn, pieceId);
+                            UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                            return Json(new { isMoveable = true, canDelete = deletedPiece.id }, JsonRequestBehavior.AllowGet);
+                        }
+                        UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                        return Json(new { isMoveable = true }, JsonRequestBehavior.AllowGet);
+                    }
+                    else if (targetColumn == currentColumn && targetRow != currentRow)
+                    {
+                        int stepSize = Math.Abs(targetRow - currentRow);
+                        if (targetRow > currentRow)
+                        {
+                            for (int i = 1; i < stepSize; i++)
+                            {
+                                if (board[currentRow + i, currentColumn] != 0)
+                                {
+                                    return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 1; i < stepSize; i++)
+                            {
+                                if (board[currentRow - i, currentColumn] != 0)
+                                {
+                                    return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
+                                }
+
+                            }
+                        }
+                        if (board[targetRow, targetColumn] != 0 && board[targetRow, targetColumn] != board[currentRow, currentColumn])
+                        {
+                            Properties deletedPiece = FindDeletedPiece(targetRow, targetColumn, pieceId);
+                            UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                            return Json(new { isMoveable = true, canDelete = deletedPiece.id }, JsonRequestBehavior.AllowGet);
+                        }
+                        UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                        return Json(new { isMoveable = true }, JsonRequestBehavior.AllowGet);
+                    }
+                    break;
             }
 
             return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
