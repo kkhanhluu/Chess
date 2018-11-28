@@ -204,7 +204,7 @@ namespace Chess.Controllers
                     }
                     break;
                 case "rook":
-                    String[] rookResult = LogicForRook(targetColumn, targetRow, currentColumn, currentRow, piece, pieceId).Split(' '); 
+                    String[] rookResult = LogicForRook(targetColumn, targetRow, currentColumn, currentRow, piece, pieceId).Split(' ');
                     if (rookResult[0] == "false")
                     {
                         return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
@@ -265,8 +265,27 @@ namespace Chess.Controllers
                         }
                     }
                     break;
+                case "king":
+                    if (((targetColumn - currentColumn) == 1 && (targetRow - currentRow) == 0)
+                        || ((targetColumn - currentColumn) == 1 && (targetRow - currentRow) == 1)
+                        || ((-targetColumn + currentColumn) == 0 && (targetRow - currentRow) == 1)
+                        || ((-targetColumn + currentColumn) == -1 && (targetRow - currentRow) == 1)
+                        || ((targetColumn - currentColumn) == -1 && (-targetRow + currentRow) == 0)
+                        || ((targetColumn - currentColumn) == -1 && (-targetRow + currentRow) == 1)
+                        || ((-targetColumn + currentColumn) == 0 && (-targetRow + currentRow) == 1)
+                        || ((-targetColumn + currentColumn) == 1 && (-targetRow + currentRow) == 1))
+                    {
+                        if (board[targetRow, targetColumn] != 0 && board[targetRow, targetColumn] != board[currentRow, currentColumn])
+                        {
+                            Properties deletedPiece = FindDeletedPiece(targetRow, targetColumn, pieceId);
+                            UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                            return Json(new { isMoveable = true, canDelete = deletedPiece.id }, JsonRequestBehavior.AllowGet);
+                        }
+                        UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                        return Json(new { isMoveable = true }, JsonRequestBehavior.AllowGet);
+                    }
+                    break;
             }
-
             return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
         }
         private static String LogicForBishop(int targetColumn, int targetRow, int currentColumn, int currentRow, Properties piece, String pieceId)
