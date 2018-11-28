@@ -144,20 +144,19 @@ namespace Chess.Controllers
                         {
                             if (currentRow - targetRow <= 2 && targetColumn == currentColumn)
                             {
-                                WhitePawnUpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                                UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
                                 return Json(new { isMoveable = true, canDelete = false }, JsonRequestBehavior.AllowGet);
                             }
                         }
                         if (targetRow - currentRow == -1 && targetColumn == currentColumn)
                         {
-                            WhitePawnUpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                            UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
                             return Json(new { isMoveable = true, canDelete = false }, JsonRequestBehavior.AllowGet);
                         }
                         if (targetRow - currentRow == -1 && Math.Abs(targetColumn - currentColumn) == 1 && board[targetRow, targetColumn] == 1)
                         {
-                            WhitePawnUpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
-                            var deletedPiece = chessModel.allPieces.Where(x => x.row == targetRow && x.column == targetColumn && x.id != pieceId).FirstOrDefault();
-                            chessModel.allPieces.Remove(deletedPiece);
+                            UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                            Properties deletedPiece = FindDeletedPiece(targetRow, targetColumn, pieceId);
                             return Json(new { isMoveable = true, canDelete = deletedPiece.id }, JsonRequestBehavior.AllowGet);
                         }
                     }
@@ -167,43 +166,61 @@ namespace Chess.Controllers
                         {
                             if (targetRow - currentRow <= 2 && targetColumn == currentColumn)
                             {
-                                BlackPawnUpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                                UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
                                 return Json(new { isMoveable = true, canDelete = false }, JsonRequestBehavior.AllowGet);
                             }
                         }
                         if (targetRow - currentRow == 1 && targetColumn == currentColumn)
                         {
-                            BlackPawnUpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                            UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
                             return Json(new { isMoveable = true, canDelete = false }, JsonRequestBehavior.AllowGet);
                         }
                         if (targetRow - currentRow == 1 && Math.Abs(targetColumn - currentColumn) == 1 && board[targetRow, targetColumn] == 2)
                         {
-                            BlackPawnUpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
-                            var deletedPiece = chessModel.allPieces.Where(x => x.row == targetRow && x.column == targetColumn && x.id != pieceId).FirstOrDefault();
-                            chessModel.allPieces.Remove(deletedPiece);
+                            UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                            Properties deletedPiece = FindDeletedPiece(targetRow, targetColumn, pieceId);
                             return Json(new { isMoveable = true, canDelete = deletedPiece.id }, JsonRequestBehavior.AllowGet);
                         }
                     }
                     break;
+                case "knight":
+                    if (((targetColumn - currentColumn) == 2 && (targetRow - currentRow) == 1)
+                        || ((targetColumn - currentColumn) == 1 && (targetRow - currentRow) == 2)
+                        || ((-targetColumn + currentColumn) == 1 && (targetRow - currentRow) == 2)
+                        || ((-targetColumn + currentColumn) == 2 && (targetRow - currentRow) == 2)
+                        || ((targetColumn - currentColumn) == 1 && (-targetRow + currentRow) == 2)
+                        || ((targetColumn - currentColumn) == 2 && (-targetRow + currentRow) == 1)
+                        || ((-targetColumn + currentColumn) == 1 && (-targetRow + currentRow) == 2)
+                        || ((-targetColumn + currentColumn) == 2 && (-targetRow + currentRow) == 2))
+                    {
+                        if (board[targetRow, targetColumn] != 0 && board[targetRow, targetColumn] != board[currentRow, currentColumn])
+                        {
+                            Properties deletedPiece = FindDeletedPiece(targetRow, targetColumn, pieceId);
+                            UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                            return Json(new { isMoveable = true, canDelete = deletedPiece.id }, JsonRequestBehavior.AllowGet);
+                        }
+                        UpdateBoard(targetRow, targetColumn, piece, currentRow, currentColumn);
+                        return Json(new { isMoveable = true }, JsonRequestBehavior.AllowGet);
+                    }
+                    break;
             }
+
             return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
         }
 
-        private static void BlackPawnUpdateBoard(int targetRow, int targetColumn, Properties piece, int currentRow, int currentColumn)
+        private static Properties FindDeletedPiece(int targetRow, int targetColumn, string pieceId)
         {
-            board[currentRow, currentColumn] = 0;
-            board[targetRow, targetColumn] = 1;
-            piece.row = targetRow;
-            piece.column = targetColumn;
-            piece.isStart = false;
+            var deletedPiece = chessModel.allPieces.Where(x => x.row == targetRow && x.column == targetColumn && x.id != pieceId).FirstOrDefault();
+            chessModel.allPieces.Remove(deletedPiece);
+            return deletedPiece;
         }
 
-        private static void WhitePawnUpdateBoard(int targetRow, int targetColumn, Properties piece, int currentRow, int currentColumn)
+        private static void UpdateBoard(int targetRow, int targetColumn, Properties piece, int currentRow, int currentColumn)
         {
-            board[currentRow, currentColumn] = 0;
-            board[targetRow, targetColumn] = 2;
             piece.row = targetRow;
             piece.column = targetColumn;
+            board[currentRow, currentColumn] = 0;
+            board[targetRow, targetColumn] = piece.color == "black" ? 1 : 2;
             piece.isStart = false;
         }
 
