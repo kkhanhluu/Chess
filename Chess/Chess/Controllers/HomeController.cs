@@ -240,7 +240,31 @@ namespace Chess.Controllers
 
                         }
                     }
-                    break; 
+                    break;
+                case "queen":
+                    String a = LogicForRook(targetColumn, targetRow, currentColumn, currentRow, piece, pieceId);
+                    if (a == "false")
+                    {
+                        a = LogicForBishop(targetColumn, targetRow, currentColumn, currentRow, piece, pieceId);
+                    }
+                    String[] queenResult = a.Split(' ');
+                    if (queenResult[0] == "false")
+                    {
+                        return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        if (queenResult.Length > 1)
+                        {
+                            return Json(new { isMoveable = true, canDelete = queenResult[1] }, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            return Json(new { isMoveable = true }, JsonRequestBehavior.AllowGet);
+
+                        }
+                    }
+                    break;
             }
 
             return Json(new { isMoveable = false }, JsonRequestBehavior.AllowGet);
