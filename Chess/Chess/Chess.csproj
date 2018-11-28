@@ -147,6 +147,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\Chess.cs" />
+    <Compile Include="Models\Cell.cs" />
     <Compile Include="Models\ChessModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

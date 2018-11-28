@@ -6,11 +6,11 @@
 <script src="~/Scripts/jquery-3.3.1.js"></script>
 <script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
 <table id="chessBoard">
-    @{ 
-        for (int i = 1; i <= 8; i++)
+    @{
+        for (int i = 0; i < 8; i++)
         {
             <tr>
-                @for (int j = 1; j <= 8; j++)
+                @for (int j = 0; j < 8; j++)
                 {
                     <td id="@i@j" class="@((i + j) % 2 == 0 ? "white" : "black")">
                         <span></span>
@@ -27,3 +27,65 @@
         }
     }
 </table>
+
+<script>
+    var x, y;
+    var counter = 0;
+    $("div").draggable({
+        containment: "#chessBoard",
+        revert: "invalid",
+        scroll: false,
+        cursor: "pointer",
+        start: function (event, ui) {
+            x = ui.offset.top;
+            y = ui.offset.left;
+        },
+        drag: function () {
+
+        },
+        stop: function (event, ui) {
+
+        }
+    })
+    $("div[data-color=black]").draggable('disable');
+
+    $("td").droppable({
+        hoverClass: "ui-state-active",
+        drop: function (event, ui) {
+            var data = {
+                targetRow: event.target.id.substr(0, 1),
+                targetColumn: event.target.id.substr(1, 1),
+                pieceId: ui.draggable[0].id
+            };
+
+            $.ajax({
+                url: '@Url.Action("Move", "Home")',
+                type: "POST",
+                data: data,
+                beforeSend: function (xhr) {
+                },
+                success: function (data) {
+                    console.log(data);
+                    if (data.isMoveable) {
+                        counter++;
+                        if (counter % 2 == 0) {
+                            $("div[data-color=black]").draggable('disable');
+                            $("div[data-color=white]").draggable('enable');
+                        } else {
+                            $("div[data-color=black]").draggable('enable');
+                            $("div[data-color=white]").draggable('disable');
+                        }
+                        if (data.canDelete) {
+                            $("#" + data.canDelete).hide("explode", 1000);
+                            $("#" + data.canDelete).remove();
+                        }
+                    }
+                    else {
+                        console.log('aa');
+                        $("#" + ui.draggable[0].id).offset({ top: x, left: y })
+                    }
+                }
+            })
+        }
+    })
+</script>
